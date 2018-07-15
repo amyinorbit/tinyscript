@@ -63,9 +63,9 @@ namespace tinyscript {
         codegen_.emitConstantI(Opcode::load_c, 1);
         codegen_.emitInstruction(Opcode::isub);
         codegen_.emitLocal(Opcode::store, codegen_.loopVariable());
-        codegen_.emitJump(Opcode::rjmp, codegen_.loopLabel());
         
-        codegen_.emitLabel(codegen_.endLoopLabel());
+        codegen_.emitJump(Opcode::rjmp, codegen_.loopLabel());
+        codegen_.closeLoop();
     }
     
     void Compiler::recUntilLoop() {
@@ -84,7 +84,6 @@ namespace tinyscript {
         expect(Token::Kind::brace_r);
         
         codegen_.emitJump(Opcode::rjmp, codegen_.loopLabel());
-        codegen_.emitLabel(codegen_.endLoopLabel());
         codegen_.closeLoop();
     }
     
@@ -125,7 +124,7 @@ namespace tinyscript {
         codegen_.emitLabel(codegen_.elseLabel());
         
         if(!have(Token::Kind::kw_else)) {
-            codegen_.emitLabel(codegen_.endifLabel());
+            codegen_.closeIf();
             return;
         }
         expect(Token::Kind::kw_else);
@@ -139,7 +138,7 @@ namespace tinyscript {
         } else {
             compilerError("expected a code block or 'if'");
         }
-        codegen_.emitLabel(codegen_.endifLabel());
+        codegen_.closeIf();
     }
     
     void Compiler::recVarDecl() {
@@ -153,15 +152,6 @@ namespace tinyscript {
         codegen_.declareLocal(name);
         codegen_.emitLocal(Opcode::store, name);
     }
-    
-    // void Compiler::recAssign() {
-    //     Token symbol = current();
-    //     expect(Token::Kind::identifier);
-    //     Token eq = current();
-    //     expect(Token::Kind::op_eq);
-    //     sema_.binaryOpType(eq, sema_.getVarType(symbol), recExpression(0));
-    //     codegen_.emitLocal(Opcode::store, symbol);
-    // }
     
     void Compiler::recFlowStatement() {
         if(have(Token::Kind::kw_next)) {
