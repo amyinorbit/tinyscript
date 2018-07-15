@@ -1,8 +1,0 @@
-unless [count_units "elf"] > 100 end
-
-loop 100 {
-
-}
-
-[add_health "elfs", 100]
-
