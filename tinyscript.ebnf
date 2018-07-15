@@ -1,0 +1,28 @@
+program         ::= block
+
+block           ::= (statement terminator)*
+
+statement       ::= counted-loop | if-else | var-decl | assignment | yield
+
+while-loop      ::= "until" expression "{" block "}"
+counted-loop    ::= "loop" integer-literal "times" "{" block "}"
+if-else         ::= "if" expression "{" block "}" ("else" ("{" block "}" | if-else))
+
+var-decl        ::= "var" identifier "=" expression
+assignment      ::= identifier "=" expression
+yield           ::= "yield" (expression)?
+continue        ::= "continue"
+break           ::= "break"
+
+expression      ::= compare-expr (("or" | "and"") compare-expr)*
+compare-expr    ::= expression (("<" | ">" | "==" | ">=" | "<=") expression)*
+sum             ::= term (("+" | "-") term)*
+product         ::= factor (("*" | "/") factor)*
+factor          ::= ("+" | "-")? (value | "(" expression ")")
+value           ::= identifier | number-literal | function-call
+
+function-call   ::= "[" identifier identifier ":" argument-list "]"
+argument-list   ::= expression ("," expression)*
+
+terminator      ::= linefeed | ";"
+
