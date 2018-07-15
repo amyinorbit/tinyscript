@@ -33,6 +33,7 @@ namespace tinyscript {
     
     void CodeGen::closeLoop() {
         builder_.addSymbol(endLoopLabel());
+        loopStack_.pop_back();
     }
     
     std::string CodeGen::loopLabel() const { return "loop_" + std::to_string(loopStack_.back()); }

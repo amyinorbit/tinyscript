@@ -1,0 +1,11 @@
+
+loop 10 {
+    var cond = [Random.Integer 0, 1000]
+    if cond > 500 {
+        [IO.Print "More than 500: " + cond]
+    } else if cond >250 {
+        [IO.Print "More than 250: " + cond]
+    } else {
+        [IO.Print "Ouch: " + cond]
+    }
+}
