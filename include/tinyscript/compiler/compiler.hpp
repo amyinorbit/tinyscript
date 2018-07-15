@@ -43,7 +43,7 @@ namespace tinyscript {
         
         TypeExpr recExpression(int level);
         TypeExpr recTerm();
-        TypeExpr recFuncCall();
+        TypeExpr recFuncCall(const Token& module);
         
         // MARK: - recursive descent utilities
         

@@ -254,12 +254,14 @@ namespace tinyscript {
             type = recExpression(0);
             expect(Token::Kind::paren_r);
         }
-        else if(have(Token::Kind::bracket_l)) {
-            type = recFuncCall();
-        }
         else if(match(Token::Kind::identifier)) {
-            type = sema_.getVarType(symbol);
-            codegen_.emitLocal(Opcode::load, symbol);
+            
+            if(match(Token::Kind::op_dot)) {
+                type = recFuncCall(symbol);
+            } else {
+                type = sema_.getVarType(symbol);
+                codegen_.emitLocal(Opcode::load, symbol);
+            }
         }
         else if(match(Token::Kind::lit_floating)) {
             type = Type::Number;
@@ -285,15 +287,12 @@ namespace tinyscript {
         return type;
     }
     
-    TypeExpr Compiler::recFuncCall() {
-        expect(Token::Kind::bracket_l);
+    TypeExpr Compiler::recFuncCall(const Token& module) {
         
         std::uint8_t arity = 0;
-        Token module = current();
-        expect(Token::Kind::identifier);
-        expect(Token::Kind::op_dot);
         Token func = current();
         expect(Token::Kind::identifier);
+        expect(Token::Kind::paren_l);
         if(haveTerm()) {
             arity = 1;
             recExpression(0);
@@ -302,7 +301,7 @@ namespace tinyscript {
                 recExpression(0);
             }
         }
-        expect(Token::Kind::bracket_r);
+        expect(Token::Kind::paren_r);
         auto type = sema_.getFuncType(module, func, arity);
         codegen_.emitConstantS(Opcode::call_f, VM::mangleFunc(manager_.tokenAsString(module), manager_.tokenAsString(func), arity));
         return type;
