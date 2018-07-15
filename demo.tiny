@@ -44,18 +44,18 @@ if cond > 500 {
 # Condition/exit thingy, like in swift (ish)
 # Guard must *always* be followed by a control flow statement: stoploop, next, exit, yield, fail
 
-guard [Random.Integer 0, 10] == 2 else exit
+guard Random.Integer(0, 10) == 2 else exit
 
 # Yielding interrupts execution of the task and can give the host app a value back. Next time the
 # host app calls the language, it'll pick up where it left off
 
 loop 100 {
-    yield [Random.Float 100.0]
+    yield Random.Float(100.0)
 }
 
 # Throwing an error can be done using `fail`:
 
-guard [System.GetOS] == "Windows 10" else fail "this script only works on Windows"
+guard System.GetOS() == "Windows 10" else fail "this script only works on Windows"
 
 #================================================================================================
 # Standard library (poor atm, working on that!)
