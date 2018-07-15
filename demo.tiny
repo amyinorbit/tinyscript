@@ -1,0 +1,62 @@
+# Tinyscript 0.1 demo/doc file
+# copyright (c) 2018 Amy Parent 
+
+# Variables
+var test1 = 123             # creates an Integer variable
+var test2 = 123.0           # creates a Floating variable
+var test3 = "Hello, world!" # creates a String variable
+
+# Expressions:  = + - / *
+# Relations:    > >= < <= ==
+123 + 123                   # integer operation, returns an integer
+123 + 123.0                 # up-casts to floating, Float(123) + 123.0
+"Hello " + 123              # string concatenation, smart, same as "Hello " + [IO.ToString 123]
+
+# Function calls: declared in host language. Overloaded by number of params.
+# [modulename.functionname arg1, arg2]
+
+# Flow control:
+
+# Until Loops
+var something = 0
+until something > 100 {
+    something = [Random.Integer 0, 1000]
+}
+
+# Counter Loops
+loop 100 {
+    [IO.Print "Hello!"]
+}
+
+# if/else
+
+var cond = [Random.Integer 0, 1000]
+if cond > 500 {
+    # ...
+} else if cond >250 {
+    # ...
+} else {
+    
+}
+
+#================================================================================================
+# Standard library (poor atm, working on that!)
+
+# System:
+
+[System.GetTime]            # Timestamp in seconds since epoch
+[System.GetOS]              # OS name string
+
+# IO
+
+[IO.Print 123]              # Prints a value
+[IO.Print "Hello"]
+[IO.ToString 123]           # Explicitly converts a value to its string representation
+
+# Random
+
+[Random.seed 1234]          # Seed RNG (with an int)
+[Random.Integer 100]        # Random integer between 0 and number
+[Random.Integer -100, 100]  # Random integer between two numbers
+[Random.Float 100]          # Random float between 0 and number
+[Random.Float -100, 100]    # Random float between two numbers
