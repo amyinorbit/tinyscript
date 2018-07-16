@@ -62,6 +62,8 @@ namespace tinyscript {
             kw_yield,
             kw_exit,
             kw_fail,
+            kw_yes,
+            kw_no,
             
             identifier,
             lit_integer,

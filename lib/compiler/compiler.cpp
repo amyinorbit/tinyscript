@@ -66,6 +66,8 @@ namespace tinyscript {
             || kind == Token::Kind::paren_l
             || kind == Token::Kind::identifier
             || kind == Token::Kind::bracket_l
+            || kind == Token::Kind::kw_no
+            || kind == Token::Kind::kw_yes
             || kind == Token::Kind::lit_integer
             || kind == Token::Kind::lit_floating
             || kind == Token::Kind::lit_string;

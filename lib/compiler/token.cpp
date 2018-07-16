@@ -30,6 +30,8 @@ namespace tinyscript {
         {Token::Kind::kw_yield,     "yield"},
         {Token::Kind::kw_exit,      "exit"},
         {Token::Kind::kw_fail,      "fail"},
+        {Token::Kind::kw_yes,       "yes"},
+        {Token::Kind::kw_no,        "no"},
     };
     
     struct OperatorData {

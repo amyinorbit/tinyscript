@@ -251,6 +251,14 @@ namespace tinyscript {
             type = sema_.getVarType(symbol);
             codegen_.emitLocal(Opcode::load, symbol);
         }
+        else if(match(Token::Kind::kw_yes)) {
+            type = Type::Bool;
+            codegen_.emitInstruction(Opcode::load_yes);
+        }
+        else if(match(Token::Kind::kw_no)) {
+            type = Type::Bool;
+            codegen_.emitInstruction(Opcode::load_no);
+        }
         else if(match(Token::Kind::lit_floating)) {
             type = Type::Number;
             codegen_.emitConstantF(Opcode::load_c, symbol);

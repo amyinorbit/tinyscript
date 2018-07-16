@@ -9,6 +9,8 @@
 OPCODE(halt,0,0)
 
 OPCODE(load_c,1,1)
+OPCODE(load_yes,1,0)
+OPCODE(load_no,1,0)
 OPCODE(load,1,1)
 OPCODE(store,0,1)
 

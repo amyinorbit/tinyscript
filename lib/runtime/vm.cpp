@@ -75,6 +75,14 @@ namespace tinyscript {
                     co.push(co.constant(co.read8()));
                     break;
                     
+                case Opcode::load_yes:
+                    co.push(Value::boolean(true));
+                    break;
+                    
+                case Opcode::load_no:
+                    co.push(Value::boolean(false));
+                    break;
+                    
                 case Opcode::load:
                     co.load();
                     break;
