@@ -96,8 +96,8 @@ namespace tinyscript {
             co.push(Value(str.substr(begin, length)));
         });
         
-        reflection_.addFunction("Mangle", 1, Type::String, []VM& vm, Task& co) {
-            const auto& signature = co.pop.asString();
+        reflection_.addFunction("Mangle", 1, Type::String, [](VM& vm, Task& co) {
+            const auto& signature = co.pop().asString();
         });
         
         reflection_.addFunction("Mangle", 3, Type::String, [](VM& vm, Task& co) {
