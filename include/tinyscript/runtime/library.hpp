@@ -19,11 +19,13 @@ namespace tinyscript {
         const Module& io() const { return io_; }
         const Module& string() const { return string_; }
         const Module& random() const { return random_; }
+        const Module& reflection() const { return reflection_; }
         
     private:
         Module random_;
         Module system_;
         Module io_;
         Module string_;
+        Module reflection_;
     };
 }

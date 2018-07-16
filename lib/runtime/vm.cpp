@@ -32,6 +32,7 @@ namespace tinyscript {
     }
     
     void VM::registerModule(const tinyscript::Module &module) {
+        //modules_[module.name] = module;
         for(const auto& pair: module.functions()) {
             functions_[pair.first] = pair.second;
         }
@@ -44,8 +45,18 @@ namespace tinyscript {
         return it->second.returnType;
     }
     
+
+    bool VM::functionExists(const std::string& module, const std::string& symbol, std::uint8_t arity) const {
+        auto sig = mangleFunc(module, symbol, arity);
+        auto it = functions_.find(sig);
+        return it != functions_.end();
+    }
+    
+    // bool VM::moduleExists(const std::string& module) const {
+    //     return modules_.find(module) != modules_.end();
+    // }
+    
     std::pair<VM::Result, Value> VM::run(tinyscript::Task &co) {
-        
         for(;;) {
             auto instr = co.next();
             

@@ -30,6 +30,7 @@ int main(int argc, const char * argv[]) {
     vm.registerModule(lib.io());
     vm.registerModule(lib.random());
     vm.registerModule(lib.string());
+    vm.registerModule(lib.reflection());
 
     if(argc != 2) {
         std::cerr << "error: wrong number of arguments" << std::endl;

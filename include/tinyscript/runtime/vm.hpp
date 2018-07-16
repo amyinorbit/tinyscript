@@ -9,17 +9,18 @@
 #pragma once
 #include <functional>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <cstdint>
 #include <utility>
 
 #include <tinyscript/type.hpp>
+//#include <tinyscript/runtime/module.hpp>
 #include <tinyscript/runtime/value.hpp>
 
 namespace tinyscript {
-    class Module;
     class Task;
     class Program;
+    class Module;
     
     class VM {
     public:
@@ -33,7 +34,8 @@ namespace tinyscript {
             Foreign         code;
         };
         
-        using DispatchTable = std::map<std::string, Function>;
+        using DispatchTable = std::unordered_map<std::string, Function>;
+        using ModuleTable = std::unordered_map<std::string, Module>;
         
         VM();
         ~VM();
@@ -44,9 +46,14 @@ namespace tinyscript {
         //void addFunction(const std::string& symbol, uint8_t arity, Type returnType, Foreign func);
         void registerModule(const Module& module);
         Type functionType(const std::string& module, const std::string& symbol, std::uint8_t arity) const;
+        
+        bool functionExists(const std::string& module, const std::string& symbol, std::uint8_t arity) const;
+        //bool moduleExists(const std::string& module) const;
+        
         std::pair<Result, Value> run(Task& co);
         
     private:
+        //ModuleTable modules_;
         DispatchTable functions_;
     };
 }

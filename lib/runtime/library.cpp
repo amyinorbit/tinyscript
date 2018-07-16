@@ -6,6 +6,7 @@
 //  Copyright © 2018 Amy Parent. All rights reserved.
 //
 #include <cstdlib>
+#include <string>
 #include <tinyscript/runtime/library.hpp>
 
 #include <tinyscript/runtime/vm.hpp>
@@ -13,7 +14,12 @@
 
 namespace tinyscript {
     
-    StdLib::StdLib() : system_("System"), io_("IO"), string_("String"), random_("Random") {
+    StdLib::StdLib()
+    : random_("Random")
+    , system_("System")
+    , io_("IO")
+    , string_("String")
+    , reflection_("Reflection") {
         system_.addFunction("GetOS", 0, Type::String, [](VM& vm, Task& co) {
             co.push(Value(std::string("macOS")));
         });
@@ -29,6 +35,20 @@ namespace tinyscript {
         
         io_.addFunction("ToString", 1, Type::String, [](VM& vm, Task& co) {
             co.push(Value(co.pop().repr()));
+        });
+        
+        io_.addFunction("GetLine", 0, Type::String, [](VM& vm, Task& co) {
+            std::string line;
+            std::getline(std::cin, line);
+            co.push(Value(line));
+        });
+        
+        io_.addFunction("GetLine", 1, Type::String, [](VM& vm, Task& co) {
+            const auto& prompt = co.pop().asString();
+            std::cout << prompt;
+            std::string line;
+            std::getline(std::cin, line);
+            co.push(Value(line));
         });
         
         random_.addFunction("Float", 2, Type::Number, [](VM& vm, Task& co) {
@@ -75,6 +95,29 @@ namespace tinyscript {
             const auto& str = co.pop().asString();
             co.push(Value(str.substr(begin, length)));
         });
+        
+        reflection_.addFunction("Mangle", 1, Type::String, []VM& vm, Task& co) {
+            const auto& signature = co.pop.asString();
+        });
+        
+        reflection_.addFunction("Mangle", 3, Type::String, [](VM& vm, Task& co) {
+            std::uint64_t arity = co.pop().asInt();
+            const auto& func = co.pop().asString();
+            const auto& module = co.pop().asString();
+            co.push(Value(vm.mangleFunc(module, func, arity))); 
+        });
+        
+        reflection_.addFunction("FunctionExists", 3, Type::Bool, [](VM& vm, Task& co) {
+            std::uint64_t arity = co.pop().asInt();
+            const auto& func = co.pop().asString();
+            const auto& module = co.pop().asString();
+            co.push(Value::boolean(vm.functionExists(module, func, arity))); 
+        });
+        
+        // reflection_.addFunction("ModuleExists", 1, Type::Bool, [](VM& vm, Task& co){
+        //     const auto& module = co.pop().asString();
+        //     co.push(Value::boolean(vm.moduleExists(module)));
+        // });
         
 //        string_.addFunction("ToUpper", 1, Type::String, [](VM& vm, Task& co) {
 //            const auto& str = co.pop().asString();
