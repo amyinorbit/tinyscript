@@ -9,13 +9,13 @@
 #pragma once
 #include <cstdint>
 #include <iostream>
+#include <string>
 
 #include <tinyscript/opcodes.hpp>
 #include <tinyscript/runtime/program.hpp>
 #include <tinyscript/runtime/value.hpp>
 
 namespace tinyscript {
-    class Program;
     class Task {
     public:
         friend class VM;
@@ -42,15 +42,27 @@ namespace tinyscript {
         void load();
         void store();
         
+        // MARK: - Stack Management
+        
+        void pushFrame(const Program::Function& func);
+        void pushFrame(const std::string& name);
+        void popFrame();
+        
     private:
+        struct Frame {
+            const Program::Function&    function;
+            std::uint64_t               callerIP;
+            Value*                      base;
+            Value*                      stack;
+        };
+        
         const Program&      program_;
         const std::uint32_t stackSize_;
         
-        std::uint64_t       ip_ = 0;
-        
         Value*              stack_;
-        Value*              locals_;
         Value*              sp_;
+        std::vector<Frame>  callStack_;
+        std::uint64_t       ip_ = 0;
     };
     
     inline void Task::push(const Value& value) {
@@ -59,7 +71,7 @@ namespace tinyscript {
     }
     
     inline Value& Task::pop() {
-        assert(sp_-1 >= locals_ && "Coroutine stack underflow");
+        assert(sp_-1 >= stack_ && "Coroutine stack underflow");
         return *(--sp_);
     }
     
@@ -68,20 +80,25 @@ namespace tinyscript {
     }
     
     inline Opcode Task::next() {
-        return static_cast<Opcode>(program_.bytecode[ip_++]);
+        assert(callStack_.size() > 0 && "No function on call stack");
+        return static_cast<Opcode>(callStack_.back().function.bytecode[ip_++]);
     }
     
     inline std::uint8_t Task::read8() {
-        return program_.bytecode[ip_++];
+        assert(callStack_.size() > 0 && "No function on call stack");
+        const auto& bytecode = callStack_.back().function.bytecode;
+        return bytecode[ip_++];
     }
     
     inline std::uint16_t Task::read16() {
+        assert(callStack_.size() > 0 && "No function on call stack");
         ip_ += 2;
-        return (program_.bytecode[ip_-2] << 8) | (program_.bytecode[ip_-1]);
+        const auto& bytecode = callStack_.back().function.bytecode;
+        return (bytecode[ip_-2] << 8) | (bytecode[ip_-1]);
     }
     
     inline std::uint32_t Task::stackSize() const {
-        return static_cast<std::uint32_t>(sp_ - locals_);
+        return static_cast<std::uint32_t>(sp_ - stack_);
     }
     
     inline const Value& Task::constant(std::uint8_t idx) {
@@ -89,12 +106,12 @@ namespace tinyscript {
     }
     
     inline void Task::load() {
-        push(stack_[read8()]);
+        assert(callStack_.size() > 0 && "No function on call stack");
+        push(callStack_.back().base[read8()]);
     }
     
     inline void Task::store() {
-        stack_[read8()] = pop();
+        assert(callStack_.size() > 0 && "No function on call stack");
+        callStack_.back().base[read8()] = pop();
     }
 }
-
-

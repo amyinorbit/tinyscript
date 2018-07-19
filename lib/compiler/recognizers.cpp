@@ -21,6 +21,8 @@ namespace tinyscript {
         for(;;) {
             if(have(Token::Kind::kw_var))
                 recVarDecl();
+            if(have(Token::Kind::kw_func))
+                recFuncDecl();
             else if(haveTerm())
                 recExpression(0);
             else if(have(Token::Kind::kw_until))
@@ -151,6 +153,49 @@ namespace tinyscript {
         sema_.declareVariable(name, type.unqualifiedType());
         codegen_.declareLocal(name);
         codegen_.emitLocal(Opcode::store, name);
+    }
+    
+    void Compiler::recFuncDecl() {
+        expect(Token::Kind::kw_func);
+        Token name = current();
+        expect(Token::Kind::identifier);
+        expect(Token::Kind::op_eq);
+        expect(Token::Kind::bracket_l);
+        
+        if(have(Token::Kind::identifier)) {
+            auto pair = recParamDecl();
+            while(match(Token::Kind::comma))
+                auto pair = recParamDecl();
+        }
+        
+        expect(Token::Kind::bracket_r);
+        expect(Token::Kind::colon);
+        auto retType = recTypeDecl();
+        expect(Token::Kind::brace_l);
+        recBlock();
+        expect(Token::Kind::brace_r);
+    }
+
+    std::pair<Token, Type> Compiler::recParamDecl() {
+        Token name = current();
+        expect(Token::Kind::identifier);
+        expect(Token::Kind::colon);
+        return std::make_pair(name, recTypeDecl());
+    }
+    
+    Type Compiler::recTypeDecl() {
+        if(match(Token::Kind::ty_integer))
+            return Type::Integer;
+        if(match(Token::Kind::ty_real))
+            return Type::Number;
+        if(match(Token::Kind::ty_string))
+            return Type::String;
+        if(match(Token::Kind::ty_bool))
+            return Type::Bool;
+        if(match(Token::Kind::ty_void))
+            return Type::Void;
+        compilerError("Invalid type name");
+        return Type::Invalid;
     }
     
     void Compiler::recFlowStatement() {

@@ -47,18 +47,18 @@ namespace tinyscript {
         complete_ = resolved_ = true;
     }
     
-    void ILInstruction::write(tinyscript::Program &program) const {
+    void ILInstruction::write(Program::Function& function) const {
         if(!isResolved() || !isComplete()) return;
-        program.bytecode.push_back(static_cast<std::uint8_t>(code_));
+        function.bytecode.push_back(static_cast<std::uint8_t>(code_));
         
         switch (operandSize(code_)) {
             case 1:
-                program.bytecode.push_back(operand_ & 0x00ff);
+                function.bytecode.push_back(operand_ & 0x00ff);
                 break;
                 
             case 2:
-                program.bytecode.push_back((operand_ >> 8) & 0x00ff);
-                program.bytecode.push_back(operand_ & 0x00ff);
+                function.bytecode.push_back((operand_ >> 8) & 0x00ff);
+                function.bytecode.push_back(operand_ & 0x00ff);
                 break;
                 
             default:
@@ -101,8 +101,7 @@ namespace tinyscript {
     }
     
     void ILBuilder::removeInstruction(InsertLocation at) {
-        assert(at < il_.size() && "Patched isntructions must be insterted at an existing point in the IL bitcode");
-        //auto& instr = il_[at];
+        assert(at < il_.size() && "Patched instructions must be inserted at an existing point in the IL bitcode");
         
         // We need to update all symbols that come after too
         //auto address = il_[at].address();
@@ -223,7 +222,7 @@ namespace tinyscript {
         }
         program.variableCount = locals_.size();
         for(const auto& inst: il_) {
-            inst.write(program);
+            inst.write(program.script);
         }
     }
 }

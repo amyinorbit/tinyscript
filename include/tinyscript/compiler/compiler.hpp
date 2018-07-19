@@ -7,6 +7,7 @@
 //
 #pragma once
 #include <string>
+#include <utility>
 
 #include <tinyscript/compiler/token.hpp>
 #include <tinyscript/compiler/scanner.hpp>
@@ -37,6 +38,9 @@ namespace tinyscript {
         void recGuard();
         void recIfElse();
         void recVarDecl();
+        void recFuncDecl();
+        std::pair<Token, Type> recParamDecl();
+        Type recTypeDecl();
         void recAssign();
         void recFlowStatement();
         void recYield();

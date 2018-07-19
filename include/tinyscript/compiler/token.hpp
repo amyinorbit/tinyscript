@@ -50,6 +50,7 @@ namespace tinyscript {
             semicolon,
             
             kw_var,
+            kw_func,
             kw_if,
             kw_guard,
             kw_else,
@@ -59,11 +60,18 @@ namespace tinyscript {
             kw_and,
             kw_next,
             kw_stoploop,
+            kw_return,
             kw_yield,
             kw_exit,
             kw_fail,
             kw_yes,
             kw_no,
+            
+            ty_integer,
+            ty_real,
+            ty_string,
+            ty_bool,
+            ty_void,
             
             identifier,
             lit_integer,

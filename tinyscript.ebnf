@@ -8,6 +8,7 @@ while-loop      ::= "until" expression "{" block "}"
 counted-loop    ::= "loop" integer-literal "times" "{" block "}"
 if-else         ::= "if" expression "{" block "}" ("else" ("{" block "}" | if-else))
 
+func-decl       ::= "func" identifier "=" params-decl "->" type "{" block "}"
 var-decl        ::= "var" identifier "=" expression
 assignment      ::= identifier "=" expression
 yield           ::= "yield" (expression)?

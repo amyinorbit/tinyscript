@@ -313,6 +313,13 @@ namespace tinyscript {
                     // TODO: implement objects?
                     break;
                     
+                case Opcode::call_n:
+                {
+                    const auto& signature = co.constant(co.read8());
+                    co.pushFrame(signature.asString());
+                }
+                    break;
+                
                 case Opcode::call_f:
                 {
                     const auto& signature = co.constant(co.read8());

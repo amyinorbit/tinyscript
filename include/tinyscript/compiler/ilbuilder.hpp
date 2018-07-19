@@ -39,7 +39,7 @@ namespace tinyscript {
         const std::string& label() const { return label_; }
         Opcode code() const { return code_; }
         std::uint16_t operand() const { return operand_; }
-        void write(Program& program) const;
+        void write(Program::Function& function) const;
         
         std::uint64_t address;
     private:

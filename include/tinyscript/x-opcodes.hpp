@@ -52,9 +52,12 @@ OPCODE(rjnz,0,2)
 OPCODE(retain,0,0)
 OPCODE(release,0,0)
 
+OPCODE(call_n,-1,1) // Native bytecode call
+//OPCODE(call_c,-1,1) // Native coroutine bytecode call
 OPCODE(call_f,-1,1)
 OPCODE(yield,0,0)
 OPCODE(yield_v,0,0)
+
 OPCODE(fail,0,1)
 
 OPCODE(nop,0,0)

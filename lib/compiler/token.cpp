@@ -18,6 +18,7 @@ namespace tinyscript {
     
     static const TokenEntry keywords[] = {
         {Token::Kind::kw_var,       "var"},
+        {Token::Kind::kw_func,      "func"},
         {Token::Kind::kw_if,        "if"},
         {Token::Kind::kw_guard,     "guard"},
         {Token::Kind::kw_else,      "else"},
@@ -27,11 +28,18 @@ namespace tinyscript {
         {Token::Kind::kw_and,       "and"},
         {Token::Kind::kw_next,      "next"},
         {Token::Kind::kw_stoploop,  "stoploop"},
+        {Token::Kind::kw_return,    "return"},
         {Token::Kind::kw_yield,     "yield"},
         {Token::Kind::kw_exit,      "exit"},
         {Token::Kind::kw_fail,      "fail"},
         {Token::Kind::kw_yes,       "yes"},
         {Token::Kind::kw_no,        "no"},
+        
+        {Token::Kind::ty_integer,   "Integer"},
+        {Token::Kind::ty_real,      "Real"},
+        {Token::Kind::ty_string,    "String"},
+        {Token::Kind::ty_bool,      "Bool"},
+        {Token::Kind::ty_void,      "Void"},
     };
     
     struct OperatorData {
