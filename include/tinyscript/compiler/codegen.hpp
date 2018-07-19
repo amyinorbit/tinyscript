@@ -35,10 +35,10 @@ namespace tinyscript {
         std::string endLoopLabel() const;
         std::string loopVariable() const;
         
-        ILBuilder::InsertLocation patchPoint();
-        void patchConversion(Opcode code, ILBuilder::InsertLocation at);
-        void patchCall(Opcode code, const std::string& symbol, ILBuilder::InsertLocation at);
-        void dropCode(ILBuilder::InsertLocation at);
+        std::uint64_t patchPoint();
+        void patchConversion(Opcode code, std::uint64_t at);
+        void patchCall(Opcode code, const std::string& symbol, std::uint64_t at);
+        void dropCode(std::uint64_t at);
         
         void declareLocal(const Token& symbol);
         

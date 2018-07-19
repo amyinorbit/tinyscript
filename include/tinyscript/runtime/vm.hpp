@@ -40,15 +40,13 @@ namespace tinyscript {
         VM();
         ~VM();
         
-        static std::string mangleFunc(const std::string& module, const std::string& symbol, uint8_t arity);
+        static std::string mangleFunc(const std::string& symbol, std::uint8_t arity);
+        static std::string mangleFunc(const std::string& module, const std::string& symbol, std::uint8_t arity);
         static std::string mangleVar(const std::string& module, const std::string& symbol);
         
-        //void addFunction(const std::string& symbol, uint8_t arity, Type returnType, Foreign func);
         void registerModule(const Module& module);
         Type functionType(const std::string& module, const std::string& symbol, std::uint8_t arity) const;
-        
         bool functionExists(const std::string& module, const std::string& symbol, std::uint8_t arity) const;
-        //bool moduleExists(const std::string& module) const;
         
         std::pair<Result, Value> run(Task& co);
         

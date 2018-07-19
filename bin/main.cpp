@@ -46,7 +46,7 @@ int main(int argc, const char * argv[]) {
     
     SourceManager manager{input};
     Compiler comp{vm, manager};
-    auto prog = comp.compile();
+    auto prog = comp.compile(true);
     
     Task task{prog, 256};
     auto result = vm.run(task);

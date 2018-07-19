@@ -28,7 +28,7 @@ namespace tinyscript {
             static Conversion String();
             
             bool required() const { return kind_ == Kind::None; }
-            void emit(CodeGen& codegen, ILBuilder::InsertLocation at);
+            void emit(CodeGen& codegen, std::uint64_t at);
         private:
             Conversion(Kind kind, const std::string& module = "", const std::string& func = "") : kind_(kind), module_(module), func_(func) {}
             Kind kind_;

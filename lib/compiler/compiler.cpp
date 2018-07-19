@@ -53,6 +53,7 @@ namespace tinyscript {
     bool Compiler::haveFlowStatement() const {
         auto kind = scanner_.currentToken().kind;
         return kind == Token::Kind::kw_exit
+            || kind == Token::Kind::kw_return
             || kind == Token::Kind::kw_yield
             || kind == Token::Kind::kw_next
             || kind == Token::Kind::kw_stoploop

@@ -39,7 +39,7 @@ namespace tinyscript {
         void recIfElse();
         void recVarDecl();
         void recFuncDecl();
-        std::pair<Token, Type> recParamDecl();
+        Sema::VarDecl recParamDecl();
         Type recTypeDecl();
         void recAssign();
         void recFlowStatement();

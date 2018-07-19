@@ -66,20 +66,20 @@ namespace tinyscript {
         }
     }
     
-    // MARK: - ILBuilder
+    // MARK: - ILFunction
     
-    void ILBuilder::addSymbol(const std::string& label) {
+    void ILFunction::addSymbol(const std::string& label) {
         if(symbols_.find(label) != symbols_.end()) return;
         symbols_[label] = pc_;
     }
     
-    ILInstruction& ILBuilder::addInstruction(Opcode code) {
+    ILInstruction& ILFunction::addInstruction(Opcode code) {
         il_.push_back(ILInstruction(code, 0));
         current_ = &il_.back();
         return *current_;
     }
     
-    ILInstruction& ILBuilder::addInstruction(tinyscript::Opcode code, InsertLocation at) {
+    ILInstruction& ILFunction::addInstruction(tinyscript::Opcode code, std::uint64_t at) {
         if(at == il_.size()) return addInstruction(code);
         assert(at < il_.size() && "Patched isntructions must be insterted at an existing point in the IL bitcode");
         
@@ -94,13 +94,13 @@ namespace tinyscript {
         return *current_;
     }
     
-    void ILBuilder::finishInstruction() {
+    void ILFunction::finishInstruction() {
         assert(current_ && "No open instruction");
         if(!current_->isComplete()) return; // TODO: some signalling?
         pc_ += 1;
     }
     
-    void ILBuilder::removeInstruction(InsertLocation at) {
+    void ILFunction::removeInstruction(std::uint64_t at) {
         assert(at < il_.size() && "Patched instructions must be inserted at an existing point in the IL bitcode");
         
         // We need to update all symbols that come after too
@@ -113,41 +113,11 @@ namespace tinyscript {
         pc_ -= 1;
     }
     
-    ILBuilder::InsertLocation ILBuilder::currentLocation() const {
+    std::uint64_t ILFunction::currentLocation() const {
         return il_.size();
     }
     
-    std::uint8_t ILBuilder::constant(std::int64_t num) {
-        auto val = Value::Integer(num);
-        for(uint8_t i = 0; i < constants_.size(); ++i) {
-            if(constants_[i] == val) return i;
-        }
-        assert(locals_.size() < 256 && "constants overflow");
-        constants_.push_back(val);
-        return constants_.size()-1;
-    }
-    
-    std::uint8_t ILBuilder::constant(float num) {
-        auto val = Value::Float(num);
-        for(uint8_t i = 0; i < constants_.size(); ++i) {
-            if(constants_[i] == val) return i;
-        }
-        assert(locals_.size() < 256 && "constants overflow");
-        constants_.push_back(val);
-        return constants_.size()-1;
-    }
-    
-    std::uint8_t ILBuilder::constant(const std::string& str) {
-        Value val(str);
-        for(uint8_t i = 0; i < constants_.size(); ++i) {
-            if(constants_[i] == val) return i;
-        }
-        assert(locals_.size() < 256 && "constants overflow");
-        constants_.push_back(val);
-        return constants_.size()-1;
-    }
-    
-    std::uint8_t ILBuilder::local(const std::string& symbol) {
+    std::uint8_t ILFunction::local(const std::string& symbol) {
         for(uint8_t i = 0; i < locals_.size(); ++i) {
             if(locals_[i] == symbol) return i;
         }
@@ -156,15 +126,15 @@ namespace tinyscript {
         return locals_.size()-1;
     }
     
-    std::int64_t ILBuilder::getAddress(const std::string &label) {
+    std::int64_t ILFunction::getAddress(const std::string &label) {
         auto it = symbols_.find(label);
         if(it == symbols_.end()) return -1;
         return il_[it->second].address;
     }
     
-    void ILBuilder::resolveReferences() {
-        //auto rem = std::remove_if(il_.begin(), il_.end(), [](const ILInstruction& a) { return a.code() == Opcode::nop; });
-        //il_.erase(rem, il_.end());
+    void ILFunction::resolveReferences() {
+        auto rem = std::remove_if(il_.begin(), il_.end(), [](const ILInstruction& a) { return a.code() == Opcode::nop; });
+        il_.erase(rem, il_.end());
         
         std::uint64_t address = 0;
         for(auto& inst: il_) {
@@ -183,6 +153,79 @@ namespace tinyscript {
         }
     }
     
+    Program::Function ILFunction::build() const {
+        Program::Function function;
+        function.bytecode.clear();
+        function.variableCount = locals_.size();
+        for(const auto& inst: il_) {
+            inst.write(function);
+        }
+        return function;
+    }
+    
+    void ILFunction::dump(std::ostream &out) const {
+        for(const auto& inst: il_) {
+            out << "\t" << inst.code();
+            switch (inst.size()) {
+                case 2: out << " \t#" << (inst.operand() & 0x00ff); break;
+                case 3: out << " \t->" << (inst.operand() & 0xffff); break;
+                default: break;
+            }
+            out << std::endl;
+        }
+        out << std::endl;
+    }
+    
+    // MARK: - ILBuilder
+    
+    ILFunction& ILBuilder::openFunction(const std::string& signature) {
+        assert(current_ == nullptr && "a function is already opened");
+        assert(functions_.find(signature) == functions_.end() && "function already exists");
+        functions_[signature] = ILFunction();
+        current_ = &functions_.at(signature);
+        return *current_;
+    }
+    
+    void ILBuilder::closeFunction() {
+        assert(current_ == nullptr && "no open function");
+        current_->resolveReferences();
+        current_ = nullptr;
+    }
+    
+    void ILBuilder::closeScript() {
+        script_.resolveReferences();
+    }
+    
+    std::uint8_t ILBuilder::constant(std::int64_t num) {
+        auto val = Value::Integer(num);
+        for(uint8_t i = 0; i < constants_.size(); ++i) {
+            if(constants_[i] == val) return i;
+        }
+        assert(constants_.size() < 256 && "constants overflow");
+        constants_.push_back(val);
+        return constants_.size()-1;
+    }
+    
+    std::uint8_t ILBuilder::constant(float num) {
+        auto val = Value::Float(num);
+        for(uint8_t i = 0; i < constants_.size(); ++i) {
+            if(constants_[i] == val) return i;
+        }
+        assert(constants_.size() < 256 && "constants overflow");
+        constants_.push_back(val);
+        return constants_.size()-1;
+    }
+    
+    std::uint8_t ILBuilder::constant(const std::string& str) {
+        Value val(str);
+        for(uint8_t i = 0; i < constants_.size(); ++i) {
+            if(constants_[i] == val) return i;
+        }
+        assert(constants_.size() < 256 && "constants overflow");
+        constants_.push_back(val);
+        return constants_.size()-1;
+    }
+    
     void ILBuilder::dump(std::ostream &out) const {
         out << "Constants:" << std::endl;
         int i = 0;
@@ -196,33 +239,28 @@ namespace tinyscript {
             }
             out << std::endl;
         }
-        out << "\nBytecode:" << std::endl;
-        for(const auto& inst: il_) {
-            std::cerr << "  " << inst.code();
-            switch (inst.size()) {
-                case 2:
-                    out << " \t#" << (inst.operand() & 0x00ff);
-                    if(inst.code() == Opcode::load_c) out << "\t(" << constants_[inst.operand()].repr() << ")";
-                    break;
-                case 3:
-                    out << " \t->" << (inst.operand() & 0xffff);
-                    break;
-                default: break;
-            }
-            out << std::endl;
+        
+        out << "--bytecode (main script):" << std::endl;
+        script_.dump(out);
+        
+        for(const auto& pair: functions_) {
+            out << "--bytecode (" << pair.first << "):" << std::endl;
+            pair.second.dump(out);
         }
         out << "--done" << std::endl;
     }
     
     void ILBuilder::write(tinyscript::Program &program) const {
-        program.bytecode.clear();
         program.constants.clear();
+        program.functions.clear();
+        
         for(const auto& c: constants_) {
             program.constants.push_back(c);
         }
-        program.variableCount = locals_.size();
-        for(const auto& inst: il_) {
-            inst.write(program.script);
+        
+        program.script = script_.build();
+        for(const auto& pair: functions_) {
+            program.functions[pair.first] = pair.second.build();
         }
     }
 }

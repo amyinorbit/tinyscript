@@ -30,7 +30,7 @@ namespace tinyscript {
             return Conversion{Kind::Call, "IO", "ToString"};
         }
         
-        void Conversion::emit(CodeGen &codegen, ILBuilder::InsertLocation at) {
+        void Conversion::emit(CodeGen &codegen, std::uint64_t at) {
             switch (kind_) {
                 case Kind::IntFloat: codegen.patchConversion(Opcode::i2f, at); break;
                 case Kind::FloatInt: codegen.patchConversion(Opcode::f2i, at); break;

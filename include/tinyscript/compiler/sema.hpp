@@ -22,13 +22,18 @@ namespace tinyscript {
     class Sema {
     public:
         struct OperatorMapping {Type from; Type to;};
-        
         Sema(const VM& vm, const SourceManager& manager);
+        
+        using VarDecl = std::pair<Token, Type>;
         
         void pushScope();
         void popScope();
+        
+        bool declareFunction(const Token& name, const std::vector<VarDecl>& paramTypes, Type returnType);
         bool declareVariable(const Token& symbol, Type type);
+        
         TypeExpr getVarType(const Token& symbol);
+        TypeExpr getFuncType(const Token& symbol, std::uint8_t arity);
         TypeExpr getFuncType(const Token& module, const Token& symbol, std::uint8_t arity);
         
         OperatorMapping binaryOpType(const Token& op, TypeExpr lhs, TypeExpr rhs);
@@ -41,8 +46,15 @@ namespace tinyscript {
             Token declLocation;
         };
         
+        struct Func {
+            std::vector<Type>   paramTypes;
+            Type                returnType;
+            Token               declLocation;
+        };
+        
         struct Scope {
-            std::map<std::string, Var> variables;
+            std::map<std::string, Func> functions;
+            std::map<std::string, Var>  variables;
         };
         
         const VM& vm_;

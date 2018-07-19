@@ -23,8 +23,13 @@ namespace tinyscript {
         
     }
     
-    std::string VM::mangleFunc(const std::string& module, const std::string& symbol, uint8_t arity) {
-        return "_F" + std::to_string(module.size()) + module + std::to_string(symbol.size()) + symbol + "_$" + std::to_string(arity);
+    std::string VM::mangleFunc(const std::string& symbol, std::uint8_t arity) {
+        return "_N" + std::to_string(symbol.size()) + symbol + "_$" + std::to_string(arity);
+    }
+    
+    std::string VM::mangleFunc(const std::string& module, const std::string& symbol, std::uint8_t arity) {
+        return "_F" + std::to_string(module.size()) + module
+                    + std::to_string(symbol.size()) + symbol + "_$" + std::to_string(arity);
     }
     
     std::string VM::mangleVar(const std::string& module, const std::string& symbol) {
@@ -59,7 +64,6 @@ namespace tinyscript {
     std::pair<VM::Result, Value> VM::run(tinyscript::Task &co) {
         for(;;) {
             auto instr = co.next();
-            
 #ifdef DEBUG_VMSTACK
             std::cout << "[dbg] inst: " << instr << std::endl;
             if(co.stackSize() > 0)

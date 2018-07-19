@@ -17,7 +17,6 @@ namespace tinyscript {
     }
     
     void Compiler::recBlock() {
-        sema_.pushScope();
         for(;;) {
             if(have(Token::Kind::kw_var))
                 recVarDecl();
@@ -39,7 +38,6 @@ namespace tinyscript {
                 break;
             expectTerminator();
         }
-        sema_.popScope();
     }
     
     void Compiler::recCountLoop() {
@@ -58,7 +56,9 @@ namespace tinyscript {
         codegen_.emitJump(Opcode::jnz, codegen_.endLoopLabel());
         
         expect(Token::Kind::brace_l);
+        sema_.pushScope();
         recBlock();
+        sema_.popScope();
         expect(Token::Kind::brace_r);
         
         codegen_.emitLocal(Opcode::load, codegen_.loopVariable());
@@ -82,7 +82,9 @@ namespace tinyscript {
         codegen_.emitJump(Opcode::jnz, codegen_.endLoopLabel());
         
         expect(Token::Kind::brace_l);
+        sema_.pushScope();
         recBlock();
+        sema_.popScope();
         expect(Token::Kind::brace_r);
         
         codegen_.emitJump(Opcode::rjmp, codegen_.loopLabel());
@@ -119,7 +121,9 @@ namespace tinyscript {
         codegen_.emitLabel(codegen_.ifLabel());
         
         expect(Token::Kind::brace_l);
+        sema_.pushScope();
         recBlock();
+        sema_.popScope();
         expect(Token::Kind::brace_r);
         
         codegen_.emitJump(Opcode::jmp, codegen_.endifLabel());
@@ -132,7 +136,9 @@ namespace tinyscript {
         expect(Token::Kind::kw_else);
         if(have(Token::Kind::brace_l)) {
             expect(Token::Kind::brace_l);
+            sema_.pushScope();
             recBlock();
+            sema_.popScope();
             expect(Token::Kind::brace_r);
         }
         else if(have(Token::Kind::kw_if)) {
@@ -160,23 +166,27 @@ namespace tinyscript {
         Token name = current();
         expect(Token::Kind::identifier);
         expect(Token::Kind::op_eq);
+        std::vector<Sema::VarDecl> paramTypes;
+
         expect(Token::Kind::bracket_l);
-        
         if(have(Token::Kind::identifier)) {
-            auto pair = recParamDecl();
+            paramTypes.push_back(recParamDecl());
             while(match(Token::Kind::comma))
-                auto pair = recParamDecl();
+                paramTypes.push_back(recParamDecl());
         }
         
         expect(Token::Kind::bracket_r);
         expect(Token::Kind::colon);
-        auto retType = recTypeDecl();
+        auto returnType = recTypeDecl();
         expect(Token::Kind::brace_l);
+        
+        sema_.declareFunction(name, paramTypes, returnType);
         recBlock();
+        sema_.popScope();
         expect(Token::Kind::brace_r);
     }
 
-    std::pair<Token, Type> Compiler::recParamDecl() {
+    Sema::VarDecl Compiler::recParamDecl() {
         Token name = current();
         expect(Token::Kind::identifier);
         expect(Token::Kind::colon);

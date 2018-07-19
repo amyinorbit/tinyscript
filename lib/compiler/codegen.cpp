@@ -19,7 +19,7 @@ namespace tinyscript {
     }
     
     void CodeGen::closeIf() {
-        builder_.addSymbol(endifLabel());
+        builder_.currentFunction().addSymbol(endifLabel());
         ifStack_.pop_back();
     }
     
@@ -32,7 +32,7 @@ namespace tinyscript {
     }
     
     void CodeGen::closeLoop() {
-        builder_.addSymbol(endLoopLabel());
+        builder_.currentFunction().addSymbol(endLoopLabel());
         loopStack_.pop_back();
     }
     
@@ -40,32 +40,32 @@ namespace tinyscript {
     std::string CodeGen::endLoopLabel() const { return "endloop_" + std::to_string(loopStack_.back()); }
     std::string CodeGen::loopVariable() const { return "$counter_loop_" + std::to_string(loopStack_.back()); }
     
-    ILBuilder::InsertLocation CodeGen::patchPoint() {
-        return builder_.currentLocation();
+    std::uint64_t CodeGen::patchPoint() {
+        return builder_.currentFunction().currentLocation();
     }
     
-    void CodeGen::patchConversion(Opcode code, ILBuilder::InsertLocation at) {
-        builder_.addInstruction(code, at);
-        builder_.finishInstruction();
+    void CodeGen::patchConversion(Opcode code, std::uint64_t at) {
+        builder_.currentFunction().addInstruction(code, at);
+        builder_.currentFunction().finishInstruction();
     }
     
-    void CodeGen::patchCall(Opcode code, const std::string& symbol, ILBuilder::InsertLocation at) {
-        auto& inst = builder_.addInstruction(code, at);
+    void CodeGen::patchCall(Opcode code, const std::string& symbol, std::uint64_t at) {
+        auto& inst = builder_.currentFunction().addInstruction(code, at);
         inst.setOperand8(builder_.constant(symbol));
-        builder_.finishInstruction();
+        builder_.currentFunction().finishInstruction();
     }
     
-    void CodeGen::dropCode(ILBuilder::InsertLocation at) {
-        builder_.removeInstruction(at);
+    void CodeGen::dropCode(std::uint64_t at) {
+        builder_.currentFunction().removeInstruction(at);
     }
     
     void CodeGen::declareLocal(const tinyscript::Token &symbol) {
         auto name = manager_.tokenAsString(symbol);
-        builder_.local(name);
+        builder_.currentFunction().local(name);
     }
     
     void CodeGen::emitLabel(const std::string &label) {
-        builder_.addSymbol(label);
+        builder_.currentFunction().addSymbol(label);
     }
     
     void CodeGen::emitLocal(tinyscript::Opcode code, const Token& symbol) {
@@ -74,9 +74,9 @@ namespace tinyscript {
     }
     
     void CodeGen::emitLocal(tinyscript::Opcode code, const std::string &symbol) {
-        auto& inst = builder_.addInstruction(code);
-        inst.setOperand8(builder_.local(symbol));
-        builder_.finishInstruction();
+        auto& inst = builder_.currentFunction().addInstruction(code);
+        inst.setOperand8(builder_.currentFunction().local(symbol));
+        builder_.currentFunction().finishInstruction();
     }
     
     void CodeGen::emitConstantI(tinyscript::Opcode code, const Token& symbol) {
@@ -85,9 +85,9 @@ namespace tinyscript {
     }
     
     void CodeGen::emitConstantI(tinyscript::Opcode code, std::int64_t symbol) {
-        auto& inst = builder_.addInstruction(code);
+        auto& inst = builder_.currentFunction().addInstruction(code);
         inst.setOperand8(builder_.constant(symbol));
-        builder_.finishInstruction();
+        builder_.currentFunction().finishInstruction();
     }
     
     void CodeGen::emitConstantF(tinyscript::Opcode code, const Token& symbol) {
@@ -96,9 +96,9 @@ namespace tinyscript {
     }
     
     void CodeGen::emitConstantF(tinyscript::Opcode code, float symbol) {
-        auto& inst = builder_.addInstruction(code);
+        auto& inst = builder_.currentFunction().addInstruction(code);
         inst.setOperand8(builder_.constant(symbol));
-        builder_.finishInstruction();
+        builder_.currentFunction().finishInstruction();
     }
     
     void CodeGen::emitConstantS(tinyscript::Opcode code, const Token& symbol) {
@@ -106,25 +106,25 @@ namespace tinyscript {
     }
     
     void CodeGen::emitConstantS(tinyscript::Opcode code, const std::string& symbol) {
-        auto& inst = builder_.addInstruction(code);
+        auto& inst = builder_.currentFunction().addInstruction(code);
         inst.setOperand8(builder_.constant(symbol));
-        builder_.finishInstruction();
+        builder_.currentFunction().finishInstruction();
     }
     
     void CodeGen::emitInstruction(tinyscript::Opcode code) {
-        builder_.addInstruction(code);
-        builder_.finishInstruction();
+        builder_.currentFunction().addInstruction(code);
+        builder_.currentFunction().finishInstruction();
     }
     
     void CodeGen::emitJump(tinyscript::Opcode code, const std::string &label) {
-        auto& inst = builder_.addInstruction(code);
+        auto& inst = builder_.currentFunction().addInstruction(code);
         inst.setLabel(label);
-        builder_.finishInstruction();
+        builder_.currentFunction().finishInstruction();
     }
     
     Program CodeGen::generate(bool dump) {
         Program prog;
-        builder_.resolveReferences();
+        builder_.closeScript();
         builder_.write(prog);
         if(dump) builder_.dump(std::cerr);
         return prog;

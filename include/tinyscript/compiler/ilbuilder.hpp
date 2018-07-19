@@ -18,6 +18,10 @@
 
 namespace tinyscript {
     
+    class ILInstruction;
+    class ILFunction;
+    class ILBuilder;
+    
     class ILInstruction {
     public:
         ILInstruction(Opcode code, std::uint64_t address);
@@ -46,40 +50,54 @@ namespace tinyscript {
         Opcode          code_;
         std::uint16_t   operand_;
         std::string     label_;
-        //std::uint64_t   address_;
         bool            complete_;
         bool            resolved_;
     };
     
-    class ILBuilder {
+    class ILFunction {
     public:
-        
-        using InsertLocation = std::uint64_t;
         
         void addSymbol(const std::string& label);
         ILInstruction& addInstruction(Opcode code);
-        ILInstruction& addInstruction(Opcode code, InsertLocation at);
+        ILInstruction& addInstruction(Opcode code, std::uint64_t at);
         void finishInstruction();
-        void removeInstruction(InsertLocation at);
-        InsertLocation currentLocation() const;
+        void removeInstruction(std::uint64_t at);
+        std::uint64_t currentLocation() const;
+        
+        std::uint8_t local(const std::string& symbol);
+        std::int64_t getAddress(const std::string& label);
         
         void resolveReferences();
+        Program::Function build() const;
+        void dump(std::ostream &out) const;
+        
+    private:
+        
+        ILInstruction*                          current_ = nullptr;
+        std::vector<std::string>                locals_;
+        std::map<std::string, std::uint64_t>    symbols_;
+        std::vector<ILInstruction>              il_;
+        std::uint64_t                           pc_ = 0;
+    };
+    
+    class ILBuilder {
+    public:
+        ILFunction& openFunction(const std::string& signature);
+        ILFunction& currentFunction() { return current_ ? *current_ : script_; }
+        void closeFunction();
+        void closeScript();
         
         std::uint8_t constant(std::int64_t num);
         std::uint8_t constant(float num);
         std::uint8_t constant(const std::string& str);
-        std::uint8_t local(const std::string& symbol);
-        std::int64_t getAddress(const std::string& label);
         
         void dump(std::ostream& out) const;
         void write(Program& program) const;
         
     private:
-        ILInstruction*                          current_ = NULL;
-        std::vector<Value>                      constants_;
-        std::vector<std::string>                locals_;
-        std::map<std::string, std::uint64_t>    symbols_;
-        std::vector<ILInstruction>              il_;
-        std::uint64_t                           pc_ = 0;
+        ILFunction*                                 current_ = nullptr;
+        ILFunction                                  script_;
+        std::unordered_map<std::string, ILFunction> functions_;
+        std::vector<Value>                          constants_;
     };
 }

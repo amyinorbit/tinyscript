@@ -33,6 +33,35 @@ namespace tinyscript {
         scopes_.pop_back();
     }
     
+    bool Sema::declareFunction(const Token& symbol, const std::vector<VarDecl>& paramTypes, Type returnType) {
+        if(paramTypes.size() > 256) {
+            semanticError(symbol, "too many function parameters");
+            return false;
+        }
+        auto& scope = scopes_.back();
+        auto name = manager_.tokenAsString(symbol);
+        auto key = VM::mangleFunc(name, paramTypes.size());
+        auto it = scope.functions.find(key);
+        
+        if(it != scope.functions.end()) {
+            semanticError(symbol, "function '" + name + "' already declared in this scope");
+            semanticNote(it->second.declLocation, "first declaration was here");
+            return false;
+        }
+        
+        auto& func = scope.functions[key];
+        
+        pushScope();
+        for(const auto& pair: paramTypes) {
+            func.paramTypes.push_back(pair.second);
+            std::cout << "Param: " <<  manager_.tokenAsString(pair.first) << std::endl;
+            declareVariable(pair.first, pair.second);
+        }
+        scope.functions[key].declLocation = symbol;
+        scope.functions[key].returnType = returnType;
+        return true;
+    }
+    
     bool Sema::declareVariable(const Token& symbol, Type type) {
         auto key = manager_.tokenAsString(symbol);
         auto& scope = scopes_.back();
