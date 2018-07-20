@@ -54,11 +54,10 @@ namespace tinyscript {
         pushScope();
         for(const auto& pair: paramTypes) {
             func.paramTypes.push_back(pair.second);
-            std::cout << "Param: " <<  manager_.tokenAsString(pair.first) << std::endl;
             declareVariable(pair.first, pair.second);
         }
-        scope.functions[key].declLocation = symbol;
-        scope.functions[key].returnType = returnType;
+        func.declLocation = symbol;
+        func.returnType = returnType;
         return true;
     }
     
@@ -97,8 +96,9 @@ namespace tinyscript {
         for(std::int64_t i = scopes_.size()-1; i >= 0; --i) {
             auto& scope = scopes_[i];
             auto it = scope.functions.find(key);
-            if(it != scope.functions.end()) return TypeExpr(it->second.returnType, symbol);
+            if(it != scope.functions.end()) return TypeExpr(it->second.returnType);
         }
+        semanticError(symbol, "unkown function '" + key + "'");
         return TypeExpr(Type::Invalid);
     }
     

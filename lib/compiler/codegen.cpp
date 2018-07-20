@@ -62,7 +62,6 @@ namespace tinyscript {
     
     void CodeGen::openFunction(const Token& symbol, std::uint8_t arity) {
         auto signature = VM::mangleFunc(manager_.tokenAsString(symbol), arity);
-        std::cout << "OPEN FUNC " << signature << std::endl;
         builder_.openFunction(signature, arity);
     }
     
