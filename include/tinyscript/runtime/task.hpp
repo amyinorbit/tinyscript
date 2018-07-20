@@ -21,7 +21,10 @@ namespace tinyscript {
         friend class VM;
         
         Task(const Program& program, std::uint32_t stackSize);
+        Task(const Program& program, Task* caller, const std::string& function);
         ~Task();
+        
+        const Task* caller() const { return caller_; }
         
         // MARK: - Stack Management
         
@@ -59,6 +62,7 @@ namespace tinyscript {
         
         const Program&      program_;
         const std::uint32_t stackSize_;
+        const Task*         caller_ = nullptr;
         
         Value*              stack_;
         Value*              sp_;

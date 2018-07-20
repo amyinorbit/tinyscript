@@ -20,6 +20,15 @@ namespace tinyscript {
         sp_ = stack_;
         pushFrame(program_.script);
     }
+
+    Task::Task(const Program& program, Task* caller, const std::string& function)
+    : program_(program)
+    , stackSize_(caller->stackSize_)
+    , caller_(caller) {
+        stack_ = new Value[stackSize_];
+        sp_ = stack_;
+        pushFrame(function);
+    }
     
     Task::~Task() {}
     
