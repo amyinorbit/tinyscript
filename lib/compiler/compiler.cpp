@@ -27,7 +27,7 @@ namespace tinyscript {
     Program Compiler::compile(bool dump) {
         scanner_.consumeToken();
         recProgram();
-        codegen_.emitInstruction(Opcode::halt);
+        codegen_.emitInstruction(Opcode::ret);
         return codegen_.generate(dump);
     }
     

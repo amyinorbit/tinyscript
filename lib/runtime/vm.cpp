@@ -57,10 +57,6 @@ namespace tinyscript {
         return it != functions_.end();
     }
     
-    // bool VM::moduleExists(const std::string& module) const {
-    //     return modules_.find(module) != modules_.end();
-    // }
-    
     std::pair<VM::Result, Value> VM::run(tinyscript::Task &co) {
         for(;;) {
             auto instr = co.next();
@@ -337,6 +333,17 @@ namespace tinyscript {
                     
                 case Opcode::yield_v:
                     return std::make_pair(Result::Continue, co.pop());
+                    break;
+                    
+                case Opcode::ret:
+                    // TODO: handle return to caller coroutine
+                    if(co.popFrame())
+                        return std::make_pair(Result::Done, Value()); 
+                    break;
+                    
+                case Opcode::ret_v:
+                    if(co.returnFrame())
+                        return std::make_pair(Result::Done, co.pop());
                     break;
                     
                 case Opcode::fail:

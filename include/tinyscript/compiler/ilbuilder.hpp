@@ -56,7 +56,7 @@ namespace tinyscript {
     
     class ILFunction {
     public:
-        
+        ILFunction(std::uint8_t arity = 0) : arity_(arity) {}
         void addSymbol(const std::string& label);
         ILInstruction& addInstruction(Opcode code);
         ILInstruction& addInstruction(Opcode code, std::uint64_t at);
@@ -78,11 +78,12 @@ namespace tinyscript {
         std::map<std::string, std::uint64_t>    symbols_;
         std::vector<ILInstruction>              il_;
         std::uint64_t                           pc_ = 0;
+        std::uint8_t                            arity_ = 0;
     };
     
     class ILBuilder {
     public:
-        ILFunction& openFunction(const std::string& signature);
+        ILFunction& openFunction(const std::string& signature, std::uint8_t arity);
         ILFunction& currentFunction() { return current_ ? *current_ : script_; }
         void closeFunction();
         void closeScript();

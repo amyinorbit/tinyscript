@@ -17,6 +17,7 @@ namespace tinyscript {
     public:
         struct Function {
             std::uint8_t                variableCount;
+            std::uint8_t                arity;
             std::vector<std::uint8_t>   bytecode;
         };
         

@@ -157,6 +157,7 @@ namespace tinyscript {
         Program::Function function;
         function.bytecode.clear();
         function.variableCount = locals_.size();
+        function.arity = arity_;
         for(const auto& inst: il_) {
             inst.write(function);
         }
@@ -178,16 +179,16 @@ namespace tinyscript {
     
     // MARK: - ILBuilder
     
-    ILFunction& ILBuilder::openFunction(const std::string& signature) {
+    ILFunction& ILBuilder::openFunction(const std::string& signature, std::uint8_t arity) {
         assert(current_ == nullptr && "a function is already opened");
         assert(functions_.find(signature) == functions_.end() && "function already exists");
-        functions_[signature] = ILFunction();
+        functions_[signature] = ILFunction(arity);
         current_ = &functions_.at(signature);
         return *current_;
     }
     
     void ILBuilder::closeFunction() {
-        assert(current_ == nullptr && "no open function");
+        assert(current_ != nullptr && "no open function");
         current_->resolveReferences();
         current_ = nullptr;
     }

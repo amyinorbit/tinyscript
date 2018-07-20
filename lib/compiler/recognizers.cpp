@@ -167,7 +167,7 @@ namespace tinyscript {
         expect(Token::Kind::identifier);
         expect(Token::Kind::op_eq);
         std::vector<Sema::VarDecl> paramTypes;
-
+        
         expect(Token::Kind::bracket_l);
         if(have(Token::Kind::identifier)) {
             paramTypes.push_back(recParamDecl());
@@ -180,10 +180,16 @@ namespace tinyscript {
         auto returnType = recTypeDecl();
         expect(Token::Kind::brace_l);
         
+        
         sema_.declareFunction(name, paramTypes, returnType);
+        codegen_.openFunction(name, paramTypes.size());
+        for(const auto& decl: paramTypes)
+            codegen_.declareLocal(decl.first);
+        
         recBlock();
         sema_.popScope();
         expect(Token::Kind::brace_r);
+        codegen_.closeFunction();
     }
 
     Sema::VarDecl Compiler::recParamDecl() {
@@ -219,6 +225,16 @@ namespace tinyscript {
         }
         else if(have(Token::Kind::kw_yield)) {
             recYield();
+        }
+        else if(have(Token::Kind::kw_return)) {
+            expect(Token::Kind::kw_return);
+            // TODO: check return type with Sema
+            if(haveTerm()) {
+                recExpression(0);
+                codegen_.emitInstruction(Opcode::ret_v);
+            } else {
+                codegen_.emitInstruction(Opcode::ret);
+            }
         }
         else if(have(Token::Kind::kw_exit)) {
             expect(Token::Kind::kw_exit);
@@ -340,13 +356,20 @@ namespace tinyscript {
     
     TypeExpr Compiler::recFuncCall() {
         expect(Token::Kind::bracket_l);
+        Token symA, symB;
+        bool foreign = false;
         
         std::uint8_t arity = 0;
-        Token module = current();
+        
+        symA = current();
         expect(Token::Kind::identifier);
-        expect(Token::Kind::op_dot);
-        Token func = current();
-        expect(Token::Kind::identifier);
+        
+        if(match(Token::Kind::op_dot)) {
+            symB = current();
+            expect(Token::Kind::identifier);
+            foreign = true;
+        }
+        
         if(haveTerm()) {
             arity = 1;
             recExpression(0);
@@ -356,8 +379,15 @@ namespace tinyscript {
             }
         }
         expect(Token::Kind::bracket_r);
-        auto type = sema_.getFuncType(module, func, arity);
-        codegen_.emitConstantS(Opcode::call_f, VM::mangleFunc(manager_.tokenAsString(module), manager_.tokenAsString(func), arity));
+        
+        TypeExpr type{Type::Invalid};
+        if(foreign) {
+            type = sema_.getFuncType(symA, symB, arity);
+            codegen_.emitConstantS(Opcode::call_f, VM::mangleFunc(manager_.tokenAsString(symA), manager_.tokenAsString(symB), arity));
+        } else {
+            type = sema_.getFuncType(symA, arity);
+            codegen_.emitConstantS(Opcode::call_n, VM::mangleFunc(manager_.tokenAsString(symA), arity));
+        }
         return type;
     }
 }

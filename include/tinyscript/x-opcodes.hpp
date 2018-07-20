@@ -57,8 +57,8 @@ OPCODE(call_n,-1,1) // Native bytecode call
 OPCODE(call_f,-1,1)
 OPCODE(yield,0,0)
 OPCODE(yield_v,0,0)
-//OPCODE(ret,0,0)
-//OPCODE(ret,-1,0)
+OPCODE(ret,0,0)
+OPCODE(ret_v,-1,0)
 
 OPCODE(fail,0,1)
 

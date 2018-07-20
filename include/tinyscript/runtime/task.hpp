@@ -46,7 +46,8 @@ namespace tinyscript {
         
         void pushFrame(const Program::Function& func);
         void pushFrame(const std::string& name);
-        void popFrame();
+        bool popFrame();
+        bool returnFrame();
         
     private:
         struct Frame {

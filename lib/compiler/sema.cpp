@@ -91,6 +91,17 @@ namespace tinyscript {
         return TypeExpr(Type::Invalid, symbol);
     }
     
+    TypeExpr Sema::getFuncType(const Token& symbol, std::uint8_t arity) {
+        auto key = VM::mangleFunc(manager_.tokenAsString(symbol), arity);
+        
+        for(std::int64_t i = scopes_.size()-1; i >= 0; --i) {
+            auto& scope = scopes_[i];
+            auto it = scope.functions.find(key);
+            if(it != scope.functions.end()) return TypeExpr(it->second.returnType, symbol);
+        }
+        return TypeExpr(Type::Invalid);
+    }
+    
     TypeExpr Sema::getFuncType(const Token& module, const Token& symbol, std::uint8_t arity) {
         auto key1 = manager_.tokenAsString(module);
         auto key2 = manager_.tokenAsString(symbol);

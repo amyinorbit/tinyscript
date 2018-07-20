@@ -25,9 +25,10 @@ namespace tinyscript {
     
     void Task::pushFrame(const Program::Function& func) {
         auto callerIP = ip_;
-        auto* base = sp_;
-        auto* stack = sp_ + func.variableCount;
+        auto* base = sp_ - func.arity;
+        auto* stack = base + func.variableCount;
         ip_ = 0;
+        sp_ = stack;
         callStack_.push_back(Frame{func, callerIP, base, stack});
     }
     
@@ -37,10 +38,21 @@ namespace tinyscript {
         pushFrame(it->second);
     }
     
-    void Task::popFrame() {
+    bool Task::popFrame() {
         assert(callStack_.size() > 0 && "Call stack underflow");
         ip_ = callStack_.back().callerIP;
         sp_ = callStack_.back().base;
         callStack_.pop_back();
+        return callStack_.empty();
+    }
+    
+    bool Task::returnFrame() {
+        assert(callStack_.size() > 0 && "Call stack underflow");
+        Value ret = pop();
+        ip_ = callStack_.back().callerIP;
+        sp_ = callStack_.back().base;
+        callStack_.pop_back();
+        push(ret);
+        return callStack_.empty();
     }
 }

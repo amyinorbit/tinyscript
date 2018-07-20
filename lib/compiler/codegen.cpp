@@ -9,6 +9,7 @@
 #include <tinyscript/compiler/codegen.hpp>
 #include <tinyscript/compiler/sourcemanager.hpp>
 #include <tinyscript/compiler/token.hpp>
+#include <tinyscript/runtime/vm.hpp>
 
 namespace tinyscript {
     
@@ -57,6 +58,18 @@ namespace tinyscript {
     
     void CodeGen::dropCode(std::uint64_t at) {
         builder_.currentFunction().removeInstruction(at);
+    }
+    
+    void CodeGen::openFunction(const Token& symbol, std::uint8_t arity) {
+        auto signature = VM::mangleFunc(manager_.tokenAsString(symbol), arity);
+        std::cout << "OPEN FUNC " << signature << std::endl;
+        builder_.openFunction(signature, arity);
+    }
+    
+    void CodeGen::closeFunction() {
+        builder_.currentFunction().addInstruction(Opcode::ret);
+        builder_.currentFunction().finishInstruction();
+        builder_.closeFunction();
     }
     
     void CodeGen::declareLocal(const tinyscript::Token &symbol) {

@@ -40,6 +40,9 @@ namespace tinyscript {
         void patchCall(Opcode code, const std::string& symbol, std::uint64_t at);
         void dropCode(std::uint64_t at);
         
+        void openFunction(const Token& symbol, std::uint8_t arity);
+        void closeFunction();
+        
         void declareLocal(const Token& symbol);
         
         void emitLabel(const std::string& label);
