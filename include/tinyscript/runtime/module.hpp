@@ -6,6 +6,7 @@
 //  Copyright © 2018 Amy Parent. All rights reserved.
 //
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <string>

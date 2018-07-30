@@ -5,6 +5,7 @@
 //  Created by Amy Parent on 03/07/2018.
 //  Copyright © 2018 Amy Parent. All rights reserved.
 //
+#include <cassert>
 #include <string>
 #include <map>
 #include <tinyscript/compiler/token.hpp>
