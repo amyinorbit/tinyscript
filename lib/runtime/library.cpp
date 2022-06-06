@@ -20,30 +20,30 @@ namespace tinyscript {
     , io_("IO")
     , string_("String")
     , reflection_("Reflection") {
-        system_.addFunction("GetOS", 0, Type::String, [](VM& vm, Task& co) {
+        system_.addFunction("getOS", 0, Type::String, [](VM& vm, Task& co) {
             co.push(Value(std::string("macOS")));
         });
         
-        system_.addFunction("GetTime", 0, Type::Number, [](VM& vm, Task& co) {
+        system_.addFunction("getTime", 0, Type::Number, [](VM& vm, Task& co) {
             co.push(Value::Integer(time(nullptr)));
         });
         
-        io_.addFunction("Print", 1, Type::Void, [](VM& vm, Task& co) {
+        io_.addFunction("print", 1, Type::Void, [](VM& vm, Task& co) {
             const auto& v = co.pop();
             std::cout << v.repr() << std::endl;
         });
         
-        io_.addFunction("ToString", 1, Type::String, [](VM& vm, Task& co) {
+        io_.addFunction("toString", 1, Type::String, [](VM& vm, Task& co) {
             co.push(Value(co.pop().repr()));
         });
         
-        io_.addFunction("GetLine", 0, Type::String, [](VM& vm, Task& co) {
+        io_.addFunction("getLine", 0, Type::String, [](VM& vm, Task& co) {
             std::string line;
             std::getline(std::cin, line);
             co.push(Value(line));
         });
         
-        io_.addFunction("GetLine", 1, Type::String, [](VM& vm, Task& co) {
+        io_.addFunction("getLine", 1, Type::String, [](VM& vm, Task& co) {
             const auto& prompt = co.pop().asString();
             std::cout << prompt;
             std::string line;
@@ -51,7 +51,7 @@ namespace tinyscript {
             co.push(Value(line));
         });
         
-        random_.addFunction("Float", 2, Type::Number, [](VM& vm, Task& co) {
+        random_.addFunction("float", 2, Type::Number, [](VM& vm, Task& co) {
             auto high = co.pop().asNumber();
             auto low = co.pop().asNumber();
             
@@ -60,13 +60,13 @@ namespace tinyscript {
             co.push(Value::Float(r));
         });
         
-        random_.addFunction("Float", 1, Type::Number, [](VM& vm, Task& co) {
+        random_.addFunction("float", 1, Type::Number, [](VM& vm, Task& co) {
             auto m = co.pop().asNumber();
             double r = m * static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX);
             co.push(Value::Float(r));
         });
         
-        random_.addFunction("Integer", 2, Type::Integer, [](VM& vm, Task& co) {
+        random_.addFunction("integer", 2, Type::Integer, [](VM& vm, Task& co) {
             auto high = co.pop().asInt();
             auto low = co.pop().asInt();
             
@@ -74,40 +74,40 @@ namespace tinyscript {
             co.push(Value::Integer(low + (static_cast<std::uint64_t>(std::rand()) % m)));
         });
         
-        random_.addFunction("Integer", 1, Type::Integer, [](VM& vm, Task& co) {
+        random_.addFunction("integer", 1, Type::Integer, [](VM& vm, Task& co) {
             auto m = co.pop().asInt();
             co.push(Value::Integer(static_cast<std::uint64_t>(std::rand()) % m));
         });
         
-        random_.addFunction("Seed", 1, Type::Void, [](VM& vm, Task& co) {
+        random_.addFunction("seed", 1, Type::Void, [](VM& vm, Task& co) {
             std::srand(static_cast<unsigned int>(co.pop().asInt()));
         });
         
-        string_.addFunction("Equal", 2, Type::Bool, [](VM& vm, Task& co) {
+        string_.addFunction("equal", 2, Type::Bool, [](VM& vm, Task& co) {
             const auto& b = co.pop().asString();
             const auto& a = co.pop().asString();
             co.push(Value::boolean(a == b));
         });
         
-        string_.addFunction("Slice", 3, Type::String, [](VM& vm, Task& co) {
+        string_.addFunction("slice", 3, Type::String, [](VM& vm, Task& co) {
             const auto& length = co.pop().asInt();
             const auto& begin = co.pop().asInt();
             const auto& str = co.pop().asString();
             co.push(Value(str.substr(begin, length)));
         });
         
-        reflection_.addFunction("Mangle", 1, Type::String, [](VM& vm, Task& co) {
+        reflection_.addFunction("mangle", 1, Type::String, [](VM& vm, Task& co) {
             const auto& signature = co.pop().asString();
         });
         
-        reflection_.addFunction("Mangle", 3, Type::String, [](VM& vm, Task& co) {
+        reflection_.addFunction("mangle", 3, Type::String, [](VM& vm, Task& co) {
             std::uint64_t arity = co.pop().asInt();
             const auto& func = co.pop().asString();
             const auto& module = co.pop().asString();
             co.push(Value(vm.mangleFunc(module, func, arity))); 
         });
         
-        reflection_.addFunction("FunctionExists", 3, Type::Bool, [](VM& vm, Task& co) {
+        reflection_.addFunction("functionExists", 3, Type::Bool, [](VM& vm, Task& co) {
             std::uint64_t arity = co.pop().asInt();
             const auto& func = co.pop().asString();
             const auto& module = co.pop().asString();

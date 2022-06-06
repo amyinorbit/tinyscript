@@ -20,7 +20,7 @@ namespace tinyscript {
         for(;;) {
             if(have(Token::Kind::kw_var))
                 recVarDecl();
-            if(have(Token::Kind::kw_func))
+            else if(have(Token::Kind::kw_func))
                 recFuncDecl();
             else if(haveTerm())
                 recExpression(0);

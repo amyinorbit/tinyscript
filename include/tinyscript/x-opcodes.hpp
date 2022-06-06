@@ -43,6 +43,7 @@ OPCODE(test_ilteq,-1,0)
 OPCODE(test_igt,-1,0)
 OPCODE(test_igteq,-1,0)
 OPCODE(test_ieq,-1,0)
+OPCODE(test_seq, -1, 0)
 
 OPCODE(jmp,0,2)
 OPCODE(rjmp,0,2)

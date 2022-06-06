@@ -83,6 +83,7 @@ namespace tinyscript {
         };
         
         static Kind identifierKind(const char* symbol, std::uint32_t length);
+        static std::string kindString(Kind kind);
         
         Kind            kind;
         bool            isStartOfLine;

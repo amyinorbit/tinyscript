@@ -17,6 +17,67 @@ namespace tinyscript {
         std::string name;
     };
     
+    static const char *kinds[] = {
+        "brace_l",
+        "brace_r",
+        "bracket_l",
+        "bracket_r",
+        "paren_l",
+        "paren_r",
+        
+        "op_dot",
+        
+        "op_amp",
+        
+        "op_eq",
+        "op_plus",
+        "op_minus",
+        "op_star",
+        "op_slash",
+        
+        "op_lt",
+        "op_gt",
+        "op_lteq",
+        "op_gteq",
+        "op_eqeq",
+        
+        "comma",
+        "colon",
+        "semicolon",
+        
+        "kw_var",
+        "kw_func",
+        "kw_if",
+        "kw_guard",
+        "kw_else",
+        "kw_loop",
+        "kw_until",
+        "kw_or",
+        "kw_and",
+        "kw_next",
+        "kw_stoploop",
+        "kw_return",
+        "kw_yield",
+        "kw_exit",
+        "kw_fail",
+        "kw_yes",
+        "kw_no",
+        
+        "ty_integer",
+        "ty_real",
+        "ty_string",
+        "ty_bool",
+        "ty_void",
+        
+        "identifier",
+        "lit_integer",
+        "lit_floating",
+        "lit_string",
+        
+        "eof",
+        "invalid",
+    };
+    
     static const TokenEntry keywords[] = {
         {Token::Kind::kw_var,       "var"},
         {Token::Kind::kw_func,      "func"},
@@ -65,6 +126,12 @@ namespace tinyscript {
         {Token::Kind::kw_or,        {9,  false, Token::OperatorType::Logical,       Opcode::log_or}},
         {Token::Kind::op_eq,        {0,  false, Token::OperatorType::Assignment,    Opcode::store}},
     };
+    
+    
+    
+    std::string Token::kindString(Kind kind) {
+        return kinds[static_cast<int>(kind)];
+    }
     
     bool Token::isUnaryOp() const {
         return kind == Kind::op_minus;

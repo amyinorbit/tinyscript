@@ -103,7 +103,7 @@ namespace tinyscript {
             return match(kind);
         }
         if(match(kind)) return true;
-        compilerError("Unexpected token");
+        compilerError("expected " + Token::kindString(kind) + ", found " + Token::kindString(scanner_.currentToken().kind));
         recovering = true;
         return false;
     }

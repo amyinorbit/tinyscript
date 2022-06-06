@@ -281,6 +281,14 @@ namespace tinyscript {
                 }
                     break;
                     
+                case Opcode::test_seq:
+                {
+                    const auto& b = co.pop().asString();
+                    const auto& a = co.pop().asString();
+                    co.push(Value::boolean(a == b));
+                }
+                    break;
+                    
                 case Opcode::jmp:
                     co.ip_ += co.read16();
                     break;

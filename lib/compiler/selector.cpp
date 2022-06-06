@@ -27,7 +27,7 @@ namespace tinyscript {
         }
         
         Conversion Conversion::String() {
-            return Conversion{Kind::Call, "IO", "ToString"};
+            return Conversion{Kind::Call, "IO", "toString"};
         }
         
         void Conversion::emit(CodeGen &codegen, std::uint64_t at) {
@@ -62,7 +62,7 @@ namespace tinyscript {
             {Token::Kind::op_lt,    {{Type::Integer, Opcode::test_ilt}, {Type::Number, Opcode::test_flt}}},
             {Token::Kind::op_gteq,  {{Type::Integer, Opcode::test_igteq}, {Type::Number, Opcode::test_fgteq}}},
             {Token::Kind::op_lteq,  {{Type::Integer, Opcode::test_ilteq}, {Type::Number, Opcode::test_flteq}}},
-            {Token::Kind::op_eqeq,  {{Type::Integer, Opcode::test_ieq}, {Type::Number, Opcode::test_feq}}},
+            {Token::Kind::op_eqeq,  {{Type::Integer, Opcode::test_ieq}, {Type::Number, Opcode::test_feq}, {Type::String, Opcode::test_seq}}},
             {Token::Kind::kw_and,   {{Type::Bool, Opcode::log_and}}},
             {Token::Kind::kw_or,    {{Type::Bool, Opcode::log_or}}},
         };
