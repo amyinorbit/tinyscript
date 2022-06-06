@@ -22,7 +22,7 @@ product         ::= factor (("*" | "/") factor)*
 factor          ::= ("+" | "-")? (value | "(" expression ")")
 value           ::= identifier | number-literal | function-call
 
-function-call   ::= "[" identifier identifier ":" argument-list "]"
+function-call   ::= identifier "." identifier "(" argument-list ")"
 argument-list   ::= expression ("," expression)*
 
 terminator      ::= linefeed | ";"

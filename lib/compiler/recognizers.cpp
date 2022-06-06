@@ -315,12 +315,14 @@ namespace tinyscript {
             type = recExpression(0);
             expect(Token::Kind::paren_r);
         }
-        else if(have(Token::Kind::bracket_l)) {
-            type = recFuncCall();
-        }
         else if(match(Token::Kind::identifier)) {
-            type = sema_.getVarType(symbol);
-            codegen_.emitLocal(Opcode::load, symbol);
+            
+            if(match(Token::Kind::op_dot)) {
+                type = recFuncCall(symbol);
+            } else {
+                type = sema_.getVarType(symbol);
+                codegen_.emitLocal(Opcode::load, symbol);
+            }
         }
         else if(match(Token::Kind::kw_yes)) {
             type = Type::Bool;
@@ -354,21 +356,13 @@ namespace tinyscript {
         return type;
     }
     
-    TypeExpr Compiler::recFuncCall() {
-        expect(Token::Kind::bracket_l);
-        Token symA, symB;
-        bool foreign = false;
+
+    TypeExpr Compiler::recFuncCall(const Token& module) {
         
         std::uint8_t arity = 0;
-        
-        symA = current();
+        Token func = current();
         expect(Token::Kind::identifier);
-        
-        if(match(Token::Kind::op_dot)) {
-            symB = current();
-            expect(Token::Kind::identifier);
-            foreign = true;
-        }
+        expect(Token::Kind::paren_l);
         
         if(haveTerm()) {
             arity = 1;
@@ -378,16 +372,10 @@ namespace tinyscript {
                 recExpression(0);
             }
         }
-        expect(Token::Kind::bracket_r);
         
-        TypeExpr type{Type::Invalid};
-        if(foreign) {
-            type = sema_.getFuncType(symA, symB, arity);
-            codegen_.emitConstantS(Opcode::call_f, VM::mangleFunc(manager_.tokenAsString(symA), manager_.tokenAsString(symB), arity));
-        } else {
-            type = sema_.getFuncType(symA, arity);
-            codegen_.emitConstantS(Opcode::call_n, VM::mangleFunc(manager_.tokenAsString(symA), arity));
-        }
+        expect(Token::Kind::paren_r);
+        auto type = sema_.getFuncType(module, func, arity);
+        codegen_.emitConstantS(Opcode::call_f, VM::mangleFunc(manager_.tokenAsString(module), manager_.tokenAsString(func), arity));
         return type;
     }
 }
