@@ -1,0 +1,5 @@
+func sum = [a: Integer, b: Integer] : Integer {
+    return a + b
+}
+
+IO.print(sum(123, 456))

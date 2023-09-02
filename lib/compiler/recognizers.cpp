@@ -318,6 +318,9 @@ namespace tinyscript {
         else if(match(Token::Kind::identifier)) {
             
             if(match(Token::Kind::op_dot)) {
+                Token func = current();
+                type = recFuncCall(symbol, func);
+            } else if(have(Token::Kind::paren_l)) {
                 type = recFuncCall(symbol);
             } else {
                 type = sema_.getVarType(symbol);
@@ -356,11 +359,28 @@ namespace tinyscript {
         return type;
     }
     
+    TypeExpr Compiler::recFuncCall(const Token& func) {
+        std::uint8_t arity = 0;
+        expect(Token::Kind::paren_l);
+        
+        if(haveTerm()) {
+            arity = 1;
+            recExpression(0);
+            while(match(Token::Kind::comma)) {
+                arity += 1;
+                recExpression(0);
+            }
+        }
+        
+        expect(Token::Kind::paren_r);
+        auto type = sema_.getFuncType(func, arity);
+        codegen_.emitConstantS(Opcode::call_n, VM::mangleFunc(manager_.tokenAsString(func), arity));
+        return type;
+    }
 
-    TypeExpr Compiler::recFuncCall(const Token& module) {
+    TypeExpr Compiler::recFuncCall(const Token& module, const Token& func) {
         
         std::uint8_t arity = 0;
-        Token func = current();
         expect(Token::Kind::identifier);
         expect(Token::Kind::paren_l);
         
