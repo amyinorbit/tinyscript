@@ -44,6 +44,7 @@ namespace tinyscript {
         "comma",
         "colon",
         "semicolon",
+        "arrow",
         
         "kw_var",
         "kw_func",

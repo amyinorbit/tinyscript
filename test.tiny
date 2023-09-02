@@ -1,5 +1,17 @@
-func sum = [a: Integer, b: Integer] : Integer {
+func sum = (a: Integer, b: Integer) -> Integer {
     return a + b
 }
 
-IO.print(sum(123, 456))
+func fib = (n: Integer) -> Integer {
+    if n <= 1 {
+        return n
+    } else {
+        return fib(n-1) + fib(n-2)
+    }
+}
+
+var n = 1
+until n >= 20 {
+    IO.print("fib(" + n + ") = " + fib(n))
+    n = n+1
+}

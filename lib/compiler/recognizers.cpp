@@ -168,15 +168,15 @@ namespace tinyscript {
         expect(Token::Kind::op_eq);
         std::vector<Sema::VarDecl> paramTypes;
         
-        expect(Token::Kind::bracket_l);
+        expect(Token::Kind::paren_l);
         if(have(Token::Kind::identifier)) {
             paramTypes.push_back(recParamDecl());
             while(match(Token::Kind::comma))
                 paramTypes.push_back(recParamDecl());
         }
         
-        expect(Token::Kind::bracket_r);
-        expect(Token::Kind::colon);
+        expect(Token::Kind::paren_r);
+        expect(Token::Kind::arrow);
         auto returnType = recTypeDecl();
         expect(Token::Kind::brace_l);
         

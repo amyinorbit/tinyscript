@@ -132,7 +132,8 @@ namespace tinyscript {
                     
                 case '&': makeToken(Token::Kind::op_amp); return;
                 case '+': makeToken(Token::Kind::op_plus); return;
-                case '-': makeToken(Token::Kind::op_minus); return;
+                case '-': twoChars('>', Token::Kind::arrow, Token::Kind::op_minus); return;
+                
                 case '*': makeToken(Token::Kind::op_star); return;
                 case '/': makeToken(Token::Kind::op_slash); return;
                 case '"': lexString(); return;
